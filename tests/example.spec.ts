@@ -1,8 +1,7 @@
 import { test, expect } from "@playwright/test";
+import { userData } from "../Fixtures/userData";
 
 const BASE_URL = process.env.BASE_URL || "https://dashboard.mageplaza.com";
-
-const email = `test${Date.now()}@example.com`;
 
 // Verify user can register with all valid data
 test("Register with valid data", async ({ page }) => {
@@ -10,28 +9,20 @@ test("Register with valid data", async ({ page }) => {
     waitUntil: "domcontentloaded",
   });
 
-  await page.locator('input[name="firstname"]').fill("Teressaa");
-  await page.locator('input[name="lastname"]').fill("Khachatryan");
-  await page.locator('input[name="email"]').fill(email);
-  await page.locator("#password").fill("superSecretPassword123!");
-  await page
-    .locator('input[name="password_confirmation"]')
-    .fill("superSecretPassword123!");
+  await page.locator('input[name="firstname"]').fill(userData.firstName);
+  await page.locator('input[name="lastname"]').fill(userData.lastName);
+  await page.locator('input[name="email"]').fill(userData.email);
+  await page.locator('#password').fill(userData.password);
+  await page.locator('input[name="password_confirmation"]').fill(userData.password);
 
-  await expect(page.locator('input[name="firstname"]')).toHaveValue("Teressaa");
-  await expect(page.locator('input[name="lastname"]')).toHaveValue(
-    "Khachatryan",
-  );
-  await expect(page.locator('input[name="email"]')).toHaveValue(email);
-  await expect(page.locator("#password")).toHaveValue(
-    "superSecretPassword123!",
-  );
-  await expect(page.locator('input[name="password_confirmation"]')).toHaveValue(
-    "superSecretPassword123!",
-  );
+  await expect(page.locator('input[name="firstname"]')).toHaveValue(userData.firstName);
+  await expect(page.locator('input[name="lastname"]')).toHaveValue(userData.lastName);
+  await expect(page.locator('input[name="email"]')).toHaveValue(userData.email);
+  await expect(page.locator('#password')).toHaveValue(userData.password);
+  await expect(page.locator('input[name="password_confirmation"]')).toHaveValue(userData.password);
 
-  await page.locator(".action.submit.primary").click();
-  await expect(page.locator("form#form-validate")).toBeVisible();
+  await page.locator('.action.submit.primary').click();
+  await expect(page.locator('form#form-validate')).toBeVisible();
 });
 
 // Verify system prevents registration with invalid email
@@ -40,32 +31,24 @@ test("Register with invalid data", async ({ page }) => {
     waitUntil: "domcontentloaded",
   });
 
-  await page.locator('input[name="firstname"]').fill("Teressaa");
+  await page.locator('input[name="firstname"]').fill(userData.firstName);
   await page.locator('input[name="lastname"]').fill("");
   await page.locator('input[name="email"]').fill("test.com");
-  await page.locator("#password").fill("superSecretPassword123!");
-  await page
-    .locator('input[name="password_confirmation"]')
-    .fill("otherPassword!");
+  await page.locator("#password").fill(userData.password);
+  await page.locator('input[name="password_confirmation"]').fill("otherPassword!");
 
-  await expect(page.locator('input[name="firstname"]')).toHaveValue("Teressaa");
+  await expect(page.locator('input[name="firstname"]')).toHaveValue(userData.firstName);
   await expect(page.locator('input[name="lastname"]')).toHaveValue("");
   await expect(page.locator('input[name="email"]')).toHaveValue("test.com");
-  await expect(page.locator("#password")).toHaveValue(
-    "superSecretPassword123!",
-  );
-  await expect(page.locator('input[name="password_confirmation"]')).toHaveValue(
-    "otherPassword!",
-  );
+  await expect(page.locator("#password")).toHaveValue(userData.password);
+  await expect(page.locator('input[name="password_confirmation"]')).toHaveValue("otherPassword!");
 
   await page.locator(".action.submit.primary").click();
 
-  await expect(page.locator("#lastname-error")).toHaveText(
-    "This is a required field.",
-  );
+  await expect(page.locator("#lastname-error")).toHaveText("This is a required field.");
   await expect(page.locator("#email_address-error")).toHaveText(/valid email/i);
   await expect(page.locator("#password-confirmation-error")).toHaveText(
-    "Please enter the same value again.",
+    "Please enter the same value again."
   );
 });
 
@@ -75,13 +58,11 @@ test("Login with valid data", async ({ page }) => {
     waitUntil: "domcontentloaded",
   });
 
-  await page.locator("#email").fill(email);
-  await page.locator("#password").fill("superSecretPassword123!");
+  await page.locator("#email").fill(userData.email);
+  await page.locator("#password").fill(userData.password);
 
-  await expect(page.locator("#email")).toHaveValue(email);
-  await expect(page.locator("#password")).toHaveValue(
-    "superSecretPassword123!",
-  );
+  await expect(page.locator("#email")).toHaveValue(userData.email);
+  await expect(page.locator("#password")).toHaveValue(userData.password);
 
   await page.locator(".action.login.primary").click();
   await expect(page).toHaveURL(/account/);
@@ -91,10 +72,58 @@ test("Login with valid data", async ({ page }) => {
 test("Login with invalid password", async ({ request }) => {
   const response = await request.post(`${BASE_URL}/rest/V1/integration/customer/token`, {
     data: {
-      username: email,
+      username: userData.email,
       password: "wrong!",
     },
   });
+  expect(response.status()).toBe(401);
+});
 
-  expect(response.status()).not.toBe(200);
+// Verify user can complete checkout with valid billing information
+test("User can complete checkout with valid billing information", async ({ page }) => {
+  await page.goto(`${BASE_URL}/customer/account/login/`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.locator('#homeMegaMenu').hover();
+  await page.locator('.nav-link.u-header__sub-menu-nav-link.transition-3d-hover').first().click();
+
+  await page.goto(`${BASE_URL}/magento-2-one-step-checkout-extension/`);
+
+  await page.locator('.extension-fbt-add-cart').click()
+  await page.locator('.wh-2.icon-menu-white-hover').click()
+  await page.locator('.top-cart-checkout.float-right').click()
+
+  await page.goto(`${BASE_URL}/onestepcheckout/index/index/`)
+
+  const checkoutFrame = page.frameLocator("iframe");
+
+  const name = checkoutFrame.locator('#billing input[name="firstname"]');
+  const surname = checkoutFrame.locator('#billing input[name="lastname"]');
+  const street1 = checkoutFrame.locator('#billing input[name="street[0]"]');
+  const city = checkoutFrame.locator('#billing input[name="city"]');
+  const country = checkoutFrame.locator('#billing select[name="country_id"]');
+  const company = checkoutFrame.locator('#billing input[name="company"]');
+  const vat = checkoutFrame.locator('#billing input[name="vat_id"]');
+
+  await name.fill(userData.firstName)
+  await surname.fill(userData.lastName)
+  await street1.fill("123 Main Street");
+  await city.fill("New York");
+  await country.selectOption("US");
+  await company.fill("Mageplaza");
+  await vat.fill("123456789");
+
+  await expect(name).toHaveValue(userData.firstName);
+  await expect(surname).toHaveValue(userData.lastName);
+  await expect(street1).toHaveValue("123 Main Street");
+  await expect(city).toHaveValue("New York");
+  await expect(country).toHaveValue("US");
+
+  const placeOrderButton = checkoutFrame.getByRole("button", {
+    name: /place order/i,
+  });
+
+  await expect(placeOrderButton).toBeVisible();
+  await placeOrderButton.click();
 });
