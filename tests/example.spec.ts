@@ -80,23 +80,27 @@ test("Login with invalid password", async ({ request }) => {
 });
 
 // Verify user can complete checkout with valid billing information
-test("User can complete checkout with valid billing information", async ({ page }) => {
-  await page.goto(`${BASE_URL}/customer/account/login/`, {
-    waitUntil: "domcontentloaded",
-  });
-
+test.only("User can complete checkout with valid billing information", async ({ page, context }) => {
+  await page.goto(`${BASE_URL}/customer/account/login/`, {});
+ 
   await page.locator('#homeMegaMenu').hover();
   await page.locator('.nav-link.u-header__sub-menu-nav-link.transition-3d-hover').first().click();
+ 
+  const newPage = await context.waitForEvent('page');
+  await newPage.waitForLoadState();
+ 
+  await page.close();
+ 
+  const addToCartButton = newPage.locator("#extension-fbt-add-cart-desktop");
+  await expect(addToCartButton).toBeVisible();
+ 
+  await addToCartButton.click({ force: true });
+  await newPage.locator('#shoppingCartDropdownInvoker').click();
+  await newPage.locator('.top-cart-checkout.float-right').click();
 
-  await page.goto(`${BASE_URL}/magento-2-one-step-checkout-extension/`);
+  await newPage.goto(`${BASE_URL}/onestepcheckout/index/index/`);
 
-  await page.locator('.extension-fbt-add-cart').click()
-  await page.locator('.wh-2.icon-menu-white-hover').click()
-  await page.locator('.top-cart-checkout.float-right').click()
-
-  await page.goto(`${BASE_URL}/onestepcheckout/index/index/`)
-
-  const checkoutFrame = page.frameLocator("iframe");
+  const checkoutFrame = newPage.frameLocator("iframe");
 
   const name = checkoutFrame.locator('#billing input[name="firstname"]');
   const surname = checkoutFrame.locator('#billing input[name="lastname"]');
@@ -106,8 +110,10 @@ test("User can complete checkout with valid billing information", async ({ page 
   const company = checkoutFrame.locator('#billing input[name="company"]');
   const vat = checkoutFrame.locator('#billing input[name="vat_id"]');
 
-  await name.fill(userData.firstName)
-  await surname.fill(userData.lastName)
+  await newPage.locator('.action-close').click()
+  
+  await name.fill(userData.firstName);
+  await surname.fill(userData.lastName);
   await street1.fill("123 Main Street");
   await city.fill("New York");
   await country.selectOption("US");
@@ -120,10 +126,7 @@ test("User can complete checkout with valid billing information", async ({ page 
   await expect(city).toHaveValue("New York");
   await expect(country).toHaveValue("US");
 
-  const placeOrderButton = checkoutFrame.getByRole("button", {
-    name: /place order/i,
-  });
-
+  const placeOrderButton = checkoutFrame.getByRole("button", { name: /place order/i });
   await expect(placeOrderButton).toBeVisible();
   await placeOrderButton.click();
 });
