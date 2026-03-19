@@ -86,3 +86,15 @@ test("Login with valid data", async ({ page }) => {
   await page.locator(".action.login.primary").click();
   await expect(page).toHaveURL(/account/);
 });
+
+// Verify system prevents login with invalid password
+test("Login with invalid password", async ({ request }) => {
+  const response = await request.post(`${BASE_URL}/rest/V1/integration/customer/token`, {
+    data: {
+      username: email,
+      password: "wrong!",
+    },
+  });
+
+  expect(response.status()).not.toBe(200);
+});
