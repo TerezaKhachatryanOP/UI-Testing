@@ -3,7 +3,6 @@ import { userData } from "../Fixtures/userData";
 import { userInvalidData } from "../Fixtures/userData";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LoginPage } from "./pages/LoginPage";
-import { describe } from "node:test";
 
 const BASE_URL = process.env.BASE_URL || "https://dashboard.mageplaza.com";
 
@@ -52,7 +51,7 @@ test("Login with invalid password", async ({ request }) => {
 });
 
 // Verify user can complete checkout with valid billing information
-test.only("User can complete checkout with valid billing information", async ({
+test("User can complete checkout with valid billing information", async ({
   page,
   context,
 }) => {
@@ -76,14 +75,16 @@ test.only("User can complete checkout with valid billing information", async ({
   await newPage.locator("#shoppingCartDropdownInvoker").click();
   await newPage.locator(".top-cart-checkout.float-right").click();
 
-  const loginModal = newPage.locator('.modal-popup:visible');
-  const closeModalButton = loginModal.locator('button[data-role="closeBtn"]').first();
+  const loginModal = newPage.locator(".modal-popup:visible");
+  const closeModalButton = loginModal
+    .locator('button[data-role="closeBtn"]')
+    .first();
 
   await expect(loginModal).toBeVisible({ timeout: 10000 });
   await closeModalButton.click();
   await expect(loginModal).toBeHidden({ timeout: 10000 });
 
-  const email = newPage.locator('#customer-email')
+  const email = newPage.locator("#customer-email");
   const name = newPage.locator('#billing input[name="firstname"]');
   const surname = newPage.locator('#billing input[name="lastname"]');
   const street1 = newPage.locator('#billing input[name="street[0]"]');
@@ -91,10 +92,10 @@ test.only("User can complete checkout with valid billing information", async ({
   const country = newPage.locator('#billing select[name="country_id"]');
   const company = newPage.locator('#billing input[name="company"]');
   const vat = newPage.locator('#billing input[name="vat_id"]');
-  const password = newPage.locator('#osc-password')
-  const confirmPassword = newPage.locator('#osc-password-confirmation')
+  const password = newPage.locator("#osc-password");
+  const confirmPassword = newPage.locator("#osc-password-confirmation");
 
-  await email.fill(userData.email)
+  await email.fill(userData.email);
   await name.fill(userData.firstName);
   await surname.fill(userData.lastName);
   await street1.fill("123 Main Street");
@@ -102,17 +103,17 @@ test.only("User can complete checkout with valid billing information", async ({
   await country.selectOption("US");
   await company.fill("Mageplaza");
   await vat.fill("123456789");
-  await password.fill(userData.password)
-  await confirmPassword.fill(userData.password)
+  await password.fill(userData.password);
+  await confirmPassword.fill(userData.password);
 
-  await expect(email).toHaveValue(userData.email)
+  await expect(email).toHaveValue(userData.email);
   await expect(name).toHaveValue(userData.firstName);
   await expect(surname).toHaveValue(userData.lastName);
   await expect(street1).toHaveValue("123 Main Street");
   await expect(city).toHaveValue("New York");
   await expect(country).toHaveValue("US");
-  await expect(password).toHaveValue(userData.password)
-  await expect(confirmPassword).toHaveValue(userData.password)
+  await expect(password).toHaveValue(userData.password);
+  await expect(confirmPassword).toHaveValue(userData.password);
 
   const placeOrderButton = newPage.getByRole("button", {
     name: /place order/i,
@@ -124,4 +125,51 @@ test.only("User can complete checkout with valid billing information", async ({
   });
   await expect(newPage).toHaveURL(/cmd=_express-checkout/i);
   await expect(newPage).toHaveURL(/token=EC-/i);
+});
+
+// Verify user can increase item quantity and subtotal updates correctly
+test("User can increase item quantity", async ({ page, context }) => {
+  await page.goto(`${BASE_URL}/customer/account/login`, {});
+
+  await page.locator("#homeMegaMenu").hover();
+  await page
+    .locator(".nav-link.u-header__sub-menu-nav-link.transition-3d-hover")
+    .first()
+    .click();
+
+  const newPage = await context.waitForEvent("page");
+  await newPage.waitForLoadState();
+
+  await page.close();
+
+  const addToCartButton = newPage.locator("#extension-fbt-add-cart-desktop");
+  await expect(addToCartButton).toBeVisible();
+
+  await addToCartButton.click({ force: true });
+  await newPage.locator("#shoppingCartDropdownInvoker").click();
+  await newPage.locator(".top-cart-checkout.float-right").click();
+
+  const loginModal = newPage.locator(".modal-popup:visible");
+  const closeModalButton = loginModal
+    .locator('button[data-role="closeBtn"]')
+    .first();
+
+  await expect(loginModal).toBeVisible({ timeout: 10000 });
+  await closeModalButton.click();
+  await expect(loginModal).toBeHidden({ timeout: 10000 });
+
+  const qty = newPage.locator(".item_qty.quantity");
+  const value = Number(await qty.inputValue());
+
+  const prices = newPage.locator(".price");
+  const before = await prices.allInnerTexts();
+
+  await newPage.locator(".action-show.plus").first().click();
+
+  await expect(qty).toHaveValue(String(value + 1));
+  await expect(async () => {
+    const after = await prices.allInnerTexts();
+
+    expect(after).not.toEqual(before);
+  }).toPass();
 });
