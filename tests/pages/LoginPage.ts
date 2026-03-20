@@ -1,4 +1,5 @@
 import { Page, expect } from "@playwright/test";
+import { UserData, UserInvalidData } from "../../Fixtures/userData";
 
 export class LoginPage {
   page: Page;
@@ -18,7 +19,7 @@ export class LoginPage {
     await this.page.goto(`${baseURL}/customer/account/login/`);
   }
 
-  async login(userData: any) {
+  async login(userData: UserData | UserInvalidData) {
     await this.email.fill(userData.email);
     await this.password.fill(userData.password);
     await this.loginBtn.click();
