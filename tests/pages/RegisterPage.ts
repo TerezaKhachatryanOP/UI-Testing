@@ -1,4 +1,5 @@
 import { Page, expect } from "@playwright/test";
+import { UserData, UserInvalidData } from "../../Fixtures/userData";
 
 export class RegisterPage {
   page: Page;
@@ -24,7 +25,7 @@ export class RegisterPage {
     await this.page.goto(`${baseURL}/customer/account/create/`);
   }
 
-  async register(userData: any) {
+  async register(userData: UserData | UserInvalidData) {
     await this.firstName.fill(userData.firstName);
     await this.lastName.fill(userData.lastName);
     await this.email.fill(userData.email);
@@ -32,7 +33,7 @@ export class RegisterPage {
     await this.confirmPassword.fill(userData.password);
   }
 
-  async assertValues(userData: any) {
+  async assertValues(userData: UserData | UserInvalidData) {
     await expect(this.firstName).toHaveValue(userData.firstName);
     await expect(this.lastName).toHaveValue(userData.lastName);
     await expect(this.email).toHaveValue(userData.email);

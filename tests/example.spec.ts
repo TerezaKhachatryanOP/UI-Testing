@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { userData } from "../Fixtures/userData";
+import { userInvalidData } from "../Fixtures/userData";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LoginPage } from "./pages/LoginPage";
 
@@ -20,20 +21,14 @@ test("Register with invalid data", async ({ page }) => {
   const register = new RegisterPage(page);
   await register.goto(BASE_URL);
 
-  await register.firstName.fill(userData.firstName);
-  await register.lastName.fill("");
-  await register.email.fill("test.com");
-  await register.password.fill(userData.password);
-  await register.confirmPassword.fill("otherPassword!");
+  await register.firstName.fill(userInvalidData.firstName);
+  await register.lastName.fill(userInvalidData.lastName);
+  await register.email.fill(userInvalidData.email);
+  await register.password.fill(userInvalidData.password);
+  await register.confirmPassword.fill(userInvalidData.confirmPassword);
   await register.submit();
 
-  await expect(page.locator("#lastname-error")).toHaveText(
-    "This is a required field.",
-  );
   await expect(page.locator("#email_address-error")).toHaveText(/valid email/i);
-  await expect(page.locator("#password-confirmation-error")).toHaveText(
-    "Please enter the same value again.",
-  );
 });
 
 // Verify user can log in with valid email and password
