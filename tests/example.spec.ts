@@ -3,7 +3,7 @@ import { userData } from "../Fixtures/userData";
 import { userInvalidData } from "../Fixtures/userData";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LoginPage } from "./pages/LoginPage";
-import { CheckoutPage } from "./pages/CheckotPage";
+import { CheckoutPage } from "./pages/CheckoutPage";
 
 const BASE_URL = process.env.BASE_URL || "https://dashboard.mageplaza.com";
 

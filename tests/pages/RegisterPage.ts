@@ -30,7 +30,9 @@ export class RegisterPage {
     await this.lastName.fill(userData.lastName);
     await this.email.fill(userData.email);
     await this.password.fill(userData.password);
-    await this.confirmPassword.fill(userData.password);
+    await this.confirmPassword.fill(
+      (userData as UserInvalidData).confirmPassword || userData.password
+    );
   }
 
   async assertValues(userData: UserData | UserInvalidData) {
