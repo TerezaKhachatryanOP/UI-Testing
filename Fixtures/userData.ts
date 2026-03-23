@@ -3,6 +3,7 @@ export interface UserData {
   lastName: string;
   email: string;
   password: string;
+  confirmPassword?: string;
 }
 
 export const userData: UserData = {
@@ -10,6 +11,7 @@ export const userData: UserData = {
   lastName: "Khachatryan",
   email: process.env.EMAIL || `test${Date.now()}@example.com`,
   password: process.env.PASSWORD || "superSecretPassword123!",
+  confirmPassword: process.env.PASSWORD || "superSecretPassword123!",
 };
 
 export interface UserInvalidData {
