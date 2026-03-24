@@ -15,8 +15,8 @@ export const userData: UserData = {
 };
 
 export interface UserInvalidData {
-  firstName: string;
-  lastName: string;
+  firstName: string; //valid data
+  lastName: string; //valid data
   email: string;
   password: string;
   confirmPassword: string;
