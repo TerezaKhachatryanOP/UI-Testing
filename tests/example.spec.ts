@@ -5,12 +5,10 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { LoginPage } from "./pages/LoginPage";
 import { CheckoutPage } from "./pages/CheckoutPage";
 
-const BASE_URL = process.env.BASE_URL || "https://dashboard.mageplaza.com";
-
 // Verify user can register with all valid data
 test("Register with valid data", async ({ page }) => {
   const register = new RegisterPage(page);
-  await register.goto(BASE_URL);
+  await register.goto();
   await register.register(userData);
   await register.assertValues(userData);
   await register.submit();
@@ -20,7 +18,7 @@ test("Register with valid data", async ({ page }) => {
 // Verify system prevents registration with invalid email
 test("Register with invalid data", async ({ page }) => {
   const register = new RegisterPage(page);
-  await register.goto(BASE_URL);
+  await register.goto();
 
   await register.firstName.fill(userInvalidData.firstName);
   await register.lastName.fill(userInvalidData.lastName);
@@ -35,7 +33,7 @@ test("Register with invalid data", async ({ page }) => {
 // Verify user can log in with valid email and password
 test("Login with valid data", async ({ page }) => {
   const login = new LoginPage(page);
-  await login.goto(BASE_URL);
+  await login.goto();
   await login.login(userData);
   await login.assertLoginSuccess();
 });
@@ -43,7 +41,7 @@ test("Login with valid data", async ({ page }) => {
 // Verify system prevents login with invalid password
 test("Login with invalid password", async ({ request }) => {
   const response = await request.post(
-    `${BASE_URL}/rest/V1/integration/customer/token`,
+    '/rest/V1/integration/customer/token',
     {
       data: { username: userData.email, password: "wrong!" },
     },
@@ -59,7 +57,7 @@ test("User can complete checkout with valid billing information", async ({
   const checkout = new CheckoutPage(page);
 
   const newPagePromise = context.waitForEvent("page");
-  await checkout.openProductFromMenu(BASE_URL);
+  await checkout.openProductFromMenu();
 
   const newPage = await newPagePromise;
   await newPage.waitForLoadState();
@@ -81,7 +79,7 @@ test("User can increase item quantity", async ({ page, context }) => {
   const checkout = new CheckoutPage(page);
 
   const newPagePromise = context.waitForEvent("page");
-  await checkout.openProductFromMenu(BASE_URL);
+  await checkout.openProductFromMenu();
 
   const newPage = await newPagePromise;
   await newPage.waitForLoadState();
@@ -113,7 +111,7 @@ test("System prevents checkout when all required billing fields are empty", asyn
   const checkout = new CheckoutPage(page);
 
   const newPagePromise = context.waitForEvent("page");
-  await checkout.openProductFromMenu(BASE_URL);
+  await checkout.openProductFromMenu();
 
   const newPage = await newPagePromise;
   await newPage.waitForLoadState();

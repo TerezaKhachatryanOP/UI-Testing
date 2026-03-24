@@ -15,8 +15,8 @@ export class LoginPage {
     this.loginBtn = this.page.locator(".action.login.primary");
   }
 
-  async goto(baseURL: string) {
-    await this.page.goto(`${baseURL}/customer/account/login/`);
+  async goto() {
+    await this.page.goto('/customer/account/login/');
   }
 
   async login(userData: UserData | UserInvalidData) {

@@ -105,8 +105,8 @@ export class CheckoutPage {
     return this.page.locator("#osc-password-confirmation-error");
   }
 
-  async openProductFromMenu(baseUrl: string) {
-    await this.page.goto(`${baseUrl}/customer/account/login`, {});
+  async openProductFromMenu() {
+    await this.page.goto('/customer/account/login', {});
     await this.homeMegaMenu.waitFor({ state: "visible" });
     await this.homeMegaMenu.hover();
     await this.firstNavLink.click();

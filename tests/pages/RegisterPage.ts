@@ -21,8 +21,8 @@ export class RegisterPage {
     this.submitBtn = this.page.locator('.action.submit.primary');
   }
 
-  async goto(baseURL: string) {
-    await this.page.goto(`${baseURL}/customer/account/create/`);
+  async goto() {
+    await this.page.goto('/customer/account/create/');
   }
 
   async register(userData: UserData | UserInvalidData) {
