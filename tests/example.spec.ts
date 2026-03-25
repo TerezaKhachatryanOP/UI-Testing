@@ -8,7 +8,7 @@ import { CheckoutPage } from "./pages/CheckoutPage";
 // Verify user can register with all valid data
 test("Register with valid data", async ({ page }) => {
   const register = new RegisterPage(page);
-  await register.goto();
+  await page.goto('/customer/account/create/');
   await register.register(userData);
   await register.assertValues(userData);
   await register.submit();
@@ -18,7 +18,7 @@ test("Register with valid data", async ({ page }) => {
 // Verify system prevents registration with invalid email
 test("Register with invalid data", async ({ page }) => {
   const register = new RegisterPage(page);
-  await register.goto();
+  await page.goto('/customer/account/create/');
 
   await register.firstName.fill(userInvalidData.firstName);
   await register.lastName.fill(userInvalidData.lastName);
@@ -33,7 +33,7 @@ test("Register with invalid data", async ({ page }) => {
 // Verify user can log in with valid email and password
 test("Login with valid data", async ({ page }) => {
   const login = new LoginPage(page);
-  await login.goto();
+  await page.goto('/customer/account/login/');
   await login.login(userData);
   await login.assertLoginSuccess();
 });

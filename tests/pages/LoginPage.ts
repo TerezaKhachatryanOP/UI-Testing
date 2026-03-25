@@ -15,10 +15,6 @@ export class LoginPage {
     this.loginBtn = this.page.locator(".action.login.primary");
   }
 
-  async goto() {
-    await this.page.goto('/customer/account/login/');
-  }
-
   async login(userData: UserData | UserInvalidData) {
     await this.email.waitFor({ state: "visible" });
     await this.email.fill(userData.email);
